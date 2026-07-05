@@ -37,10 +37,9 @@ jobs:
         run: |
           NDK_BIN="${{ github.workspace }}/.android-ndk/toolchains/llvm/prebuilt/linux-x86_64/bin"
           "$NDK_BIN/aarch64-linux-android${ANDROID_API_LEVEL}-clang" \
-            -Iinclude \
             -Wall -Wextra -O2 \
             -static-libgcc \
-            src/*.c \
+            display_service.c \
             -llog -lm \
             -o "$BIN_NAME"
 
