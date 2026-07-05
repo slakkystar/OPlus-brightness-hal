@@ -1,0 +1,64 @@
+name: C Android Build
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+env:
+  ANDROID_NDK_VERSION: r28c
+  ANDROID_API_LEVEL: 21
+  BIN_NAME: vendor.oplus.brightness.adaptor
+
+jobs:
+  build-android:
+    name: C Android Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Android NDK
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: .android-ndk
+          key: ndk-${{ env.ANDROID_NDK_VERSION }}
+
+      - name: Download Android NDK if cache missed
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          wget -q https://dl.google.com/android/repository/android-ndk-${ANDROID_NDK_VERSION}-linux.zip -O ndk.zip
+          unzip -q ndk.zip -d .
+          mv android-ndk-${ANDROID_NDK_VERSION} .android-ndk
+
+      - name: Build release for aarch64 Android
+        run: |
+          NDK_BIN="${{ github.workspace }}/.android-ndk/toolchains/llvm/prebuilt/linux-x86_64/bin"
+          "$NDK_BIN/aarch64-linux-android${ANDROID_API_LEVEL}-clang" \
+            -Iinclude \
+            -Wall -Wextra -O2 \
+            -static-libgcc \
+            src/*.c \
+            -llog \
+            -o "$BIN_NAME"
+
+      - name: Strip binary
+        run: |
+          NDK_BIN="${{ github.workspace }}/.android-ndk/toolchains/llvm/prebuilt/linux-x86_64/bin"
+          "$NDK_BIN/llvm-strip" "$BIN_NAME"
+
+      - name: Prepare Release Folder
+        run: |
+          mkdir -p release/vendor/bin/hw
+          mkdir -p release/vendor/etc/init
+          cp "$BIN_NAME" release/vendor/bin/hw/
+          cp init.oplus.brightness.adaptor.rc release/vendor/etc/init/
+          cp README.md release/
+
+      - name: Upload Release Folder as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: oplus-brightness-adaptor-release
+          path: release

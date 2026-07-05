@@ -1,0 +1,9 @@
+service oplus.brightness.adaptor /vendor/bin/hw/vendor.oplus.brightness.adaptor
+    class late_start
+    user system
+    group system
+    disabled
+    restart_period 5000
+
+on property:sys.boot_completed=1
+    start oplus.brightness.adaptor

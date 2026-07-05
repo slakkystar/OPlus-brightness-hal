@@ -1,0 +1,34 @@
+cc_binary {
+    name: "vendor.oplus.brightness.adaptor",
+    vendor: true,
+    relative_install_path: "hw",
+
+    srcs: [
+        "src/main.c",
+        "src/modes.c",
+        "src/logging.c",
+        "src/properties.c",
+        "src/range.c",
+        "src/scaling.c",
+        "src/state.c",
+        "src/utils.c",
+        "src/writer.c",
+    ],
+
+    local_include_dirs: ["include"],
+
+    shared_libs: [
+        "liblog",
+        "libc",
+        "libm",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O2",
+    ],
+
+    init_rc: ["init.oplus.brightness.adaptor.rc"],
+}
