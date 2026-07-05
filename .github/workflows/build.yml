@@ -41,7 +41,7 @@ jobs:
             -Wall -Wextra -O2 \
             -static-libgcc \
             src/*.c \
-            -llog \
+            -llog -lm \
             -o "$BIN_NAME"
 
       - name: Strip binary
